@@ -3,12 +3,16 @@ package spiros.cloud.storage.webDev.web;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import nl.uva.vlet.vrms.ResourceFolder;
+
 import spiros.cloud.storage.SimpleVRCatalogue;
 import spiros.cloud.storage.resources.IResourceEntry;
+import spiros.cloud.storage.resources.ResourceFolderEntry;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
@@ -25,11 +29,11 @@ public class CloudDirResource implements PropFindableResource,
 		com.bradmcevoy.http.FolderResource {
 
 	private SimpleVRCatalogue catalogue;
-	private IResourceEntry entry;
+	private ResourceFolderEntry entry;
 
 	public CloudDirResource(SimpleVRCatalogue catalogue, IResourceEntry resourceEntry) {
 		this.catalogue = catalogue;
-		this.entry = resourceEntry;
+		this.entry = (ResourceFolderEntry) resourceEntry;
 	}
 
 	@Override
@@ -52,102 +56,92 @@ public class CloudDirResource implements PropFindableResource,
 
 	@Override
 	public Date getModifiedDate() {
-		return null;
+		return new Date(entry.getMetadata().getModifiedDate());
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return entry.getLRN();
 	}
 
 	@Override
 	public String getRealm() {
-		// TODO Auto-generated method stub
-		return null;
+		return "realm";
 	}
 
 	@Override
 	public String getUniqueId() {
-		// TODO Auto-generated method stub
-		return null;
+		return entry.getUID();
 	}
 
 	@Override
-	public CollectionResource createCollection(String arg0)
+	public CollectionResource createCollection(String newName)
 			throws NotAuthorizedException, ConflictException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
-	public Resource child(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Resource child(String name) {
+		return new CloudResource(catalogue, entry.getChild(name));
 	}
 
 	@Override
 	public List<? extends Resource> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
+		List<IResourceEntry> children = entry.getChildren();
+		List<Resource> list = new ArrayList<Resource>();
+		for(IResourceEntry r : children){
+			list.add(new CloudResource(catalogue, r));
+		}
+		return list;
 	}
 
 	@Override
 	public Resource createNew(String arg0, InputStream arg1, Long arg2,
 			String arg3) throws IOException, ConflictException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public void copyTo(CollectionResource arg0, String arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public void delete() {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public Long getContentLength() {
-		// TODO Auto-generated method stub
-		return null;
+		return entry.getMetadata().getLength();
 	}
 
 	@Override
-	public String getContentType(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public String getContentType(String accepts) {
+		throw new RuntimeException("Not Implemented yet. Args: accepts: "+accepts);
 	}
 
 	@Override
 	public Long getMaxAgeSeconds(Auth arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public void sendContent(OutputStream arg0, Range arg1,
 			Map<String, String> arg2, String arg3) throws IOException,
 			NotAuthorizedException, BadRequestException {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public void moveTo(CollectionResource arg0, String arg1)
 			throws ConflictException {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public Date getCreateDate() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Date(entry.getMetadata().getCreateDate());
 	}
 
 }

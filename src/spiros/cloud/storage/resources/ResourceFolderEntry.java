@@ -56,4 +56,14 @@ public class ResourceFolderEntry extends ResourceEntry {
 		this.UID = UID;
 	}
 
+	public IResourceEntry getChild(String name) {
+		for(IResourceEntry r : children){
+			if(r.getLRN().equals(name)){
+				return r;
+			}
+		}
+		return null;
+		
+	}
+
 }
