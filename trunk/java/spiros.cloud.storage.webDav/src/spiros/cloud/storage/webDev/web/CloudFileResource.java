@@ -102,22 +102,19 @@ public class CloudFileResource implements PropFindableResource, com.bradmcevoy.h
 	@Override
 	public void moveTo(CollectionResource arg0, String arg1)
 			throws ConflictException {
-		// TODO Auto-generated method stub
-		
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public String processForm(Map<String, String> arg0,
 			Map<String, FileItem> arg1) throws BadRequestException,
 			NotAuthorizedException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not Implemented yet");
 	}
 
 	@Override
 	public Date getCreateDate() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Date(this.resourceEntry.getMetadata().getCreateDate());
 	}
 	
 }
