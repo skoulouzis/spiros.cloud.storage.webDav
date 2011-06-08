@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import spiros.cloud.storage.SimpleVRCatalogue;
 import spiros.cloud.storage.resources.IResourceEntry;
+import spiros.cloud.storage.resources.ResourceEntry;
 import spiros.cloud.storage.resources.ResourceFileEntry;
 import spiros.cloud.storage.resources.ResourceFolderEntry;
 
@@ -20,14 +21,14 @@ import com.bradmcevoy.http.ResourceFactory;
 
 public class CloudResourceFactory implements ResourceFactory {
 
-	private Logger log = LoggerFactory
-			.getLogger(CloudResourceFactory.class);
+	private Logger log = LoggerFactory.getLogger(CloudResourceFactory.class);
 
 	public static final String REALM = "MyCompany";
 
 	private SimpleVRCatalogue catalogue;
-	
-	public CloudResourceFactory() throws MalformedURLException, URISyntaxException{
+
+	public CloudResourceFactory() throws MalformedURLException,
+			URISyntaxException {
 		catalogue = new SimpleVRCatalogue();
 	}
 
@@ -61,30 +62,30 @@ public class CloudResourceFactory implements ResourceFactory {
 	private Resource getResource(Path path) throws IOException,
 			ClassNotFoundException {
 
-		IResourceEntry entry = catalogue.getResourceEntry(path.toString());
-//		if(entry.isCollection()){
-//			
-//		}else{
-//			
-//		}
-		
+		IResourceEntry entry = catalogue.getResourceEntryByLRN(path.toString());
+		// if(entry.isCollection()){
+		//
+		// }else{
+		//
+		// }
+
 		return new CloudResource(catalogue, entry);
 	}
 
 	public List<? extends Resource> listRootResources() throws IOException,
 			ClassNotFoundException {
-		ArrayList<IResourceEntry> topLevel = catalogue.getTopLevelResourceEntries();
+		ArrayList<ResourceEntry> topLevel = catalogue
+				.getTopLevelResourceEntries();
 		ArrayList<Resource> topResources = new ArrayList<Resource>();
 		for (int i = 0; i < topLevel.size(); i++) {
-			if(topLevel.get(i) instanceof ResourceFolderEntry ){
-				topResources.add(new CloudDirResource(catalogue,
-						topLevel.get(i)));
-			}else if(topLevel.get(i) instanceof ResourceFileEntry){
-				topResources.add(new CloudFileResource(catalogue,
-						topLevel.get(i)));
-			}else {
-				topResources.add(new CloudResource(catalogue,
-						topLevel.get(i)));	
+			if (topLevel.get(i) instanceof ResourceFolderEntry) {
+				topResources.add(new CloudDirResource(catalogue, topLevel
+						.get(i)));
+			} else if (topLevel.get(i) instanceof ResourceFileEntry) {
+				topResources.add(new CloudFileResource(catalogue, topLevel
+						.get(i)));
+			} else {
+				topResources.add(new CloudResource(catalogue, topLevel.get(i)));
 			}
 		}
 		return topResources;

@@ -12,8 +12,7 @@ import com.bradmcevoy.http.ResourceFactoryFactory;
 import com.bradmcevoy.http.webdav.DefaultWebDavResponseHandler;
 import com.bradmcevoy.http.webdav.WebDavResponseHandler;
 
-public class CloudResourceFactoryFactory implements
-		ResourceFactoryFactory {
+public class CloudResourceFactoryFactory implements ResourceFactoryFactory {
 
 	private Logger log = LoggerFactory
 			.getLogger(CloudResourceFactoryFactory.class);
@@ -43,7 +42,7 @@ public class CloudResourceFactoryFactory implements
 				e.printStackTrace();
 			}
 			// checkInitialData();
- catch (URISyntaxException e) {
+			catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

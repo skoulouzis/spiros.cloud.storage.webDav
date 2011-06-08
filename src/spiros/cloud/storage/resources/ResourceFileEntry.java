@@ -1,8 +1,8 @@
 package spiros.cloud.storage.resources;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ResourceFileEntry extends ResourceEntry {
 
@@ -11,9 +11,8 @@ public class ResourceFileEntry extends ResourceEntry {
 	 */
 	private static final long serialVersionUID = 6019657958412257303L;
 	private List<AccessLocation> accessLocations;
-	private String UID;
 
-	public ResourceFileEntry(String logicalResourceName) {
+	public ResourceFileEntry(String logicalResourceName) throws IOException {
 		super(logicalResourceName);
 	}
 
@@ -45,16 +44,6 @@ public class ResourceFileEntry extends ResourceEntry {
 			this.accessLocations = new ArrayList<AccessLocation>();
 		}
 		this.accessLocations.add(accessLocation);
-	}
-
-	@Override
-	public String getUID() {
-		return this.UID;
-	}
-	
-	@Override
-	public void setUID(String UID) {
-		this.UID = UID;
 	}
 
 }

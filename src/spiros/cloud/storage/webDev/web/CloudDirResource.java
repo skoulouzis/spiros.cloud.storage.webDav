@@ -8,10 +8,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import nl.uva.vlet.vrms.ResourceFolder;
-
 import spiros.cloud.storage.SimpleVRCatalogue;
 import spiros.cloud.storage.resources.IResourceEntry;
+import spiros.cloud.storage.resources.ResourceEntry;
 import spiros.cloud.storage.resources.ResourceFolderEntry;
 
 import com.bradmcevoy.http.Auth;
@@ -31,7 +30,8 @@ public class CloudDirResource implements PropFindableResource,
 	private SimpleVRCatalogue catalogue;
 	private ResourceFolderEntry entry;
 
-	public CloudDirResource(SimpleVRCatalogue catalogue, IResourceEntry resourceEntry) {
+	public CloudDirResource(SimpleVRCatalogue catalogue,
+			IResourceEntry resourceEntry) {
 		this.catalogue = catalogue;
 		this.entry = (ResourceFolderEntry) resourceEntry;
 	}
@@ -87,9 +87,9 @@ public class CloudDirResource implements PropFindableResource,
 
 	@Override
 	public List<? extends Resource> getChildren() {
-		List<IResourceEntry> children = entry.getChildren();
+		List<ResourceEntry> children = entry.getChildren();
 		List<Resource> list = new ArrayList<Resource>();
-		for(IResourceEntry r : children){
+		for (IResourceEntry r : children) {
 			list.add(new CloudResource(catalogue, r));
 		}
 		return list;
@@ -118,7 +118,7 @@ public class CloudDirResource implements PropFindableResource,
 
 	@Override
 	public String getContentType(String accepts) {
-		throw new RuntimeException("Not Implemented yet. Args: accepts: "+accepts);
+		return "";
 	}
 
 	@Override

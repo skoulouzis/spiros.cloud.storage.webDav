@@ -2,7 +2,6 @@ package spiros.cloud.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,27 +10,21 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import spiros.cloud.storage.resources.IResourceEntry;
 import spiros.cloud.storage.resources.ResourceEntry;
-
-import nl.uva.vlet.GlobalConfig;
-import nl.uva.vlet.GlobalUtil;
-import nl.uva.vlet.exception.VlException;
-import nl.uva.vlet.vrs.VComposite;
-import nl.uva.vlet.vrs.VNode;
-import nl.uva.vlet.vrs.VRS;
-import nl.uva.vlet.vrs.VRSClient;
-import nl.uva.vlet.vrs.VRSContext;
+import spiros.cloud.storage.resources.ResourceFolderEntry;
 
 public class SimpleVRCatalogue implements IVRCatalogue {
 
-	 private File db;
+	private File db;
+
 	//
 	public SimpleVRCatalogue() throws MalformedURLException, URISyntaxException {
 		this.db = new File(new URI(Config.DB_LOC_URI));
 	}
-	
+
 	public void deleteAllEntries() {
 		File[] data = db.listFiles();
 		for (int i = 0; i < data.length; i++) {
@@ -43,8 +36,6 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 		return this.db.getAbsolutePath();
 	}
 
-
-
 	private void debug(String msg) {
 		System.err.println(this.getClass().getSimpleName() + ": " + msg);
 	}
@@ -52,6 +43,8 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 	@Override
 	public void registerResourceEntry(IResourceEntry entry)
 			throws URISyntaxException, IOException {
+		if (entry instanceof ResourceFolderEntry) {
+		}
 		saveEntry(entry);
 	}
 
@@ -74,17 +67,25 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 	}
 
 	@Override
-	public IResourceEntry getResourceEntry(String logicalResourceName)
+	public IResourceEntry getResourceEntryByLRN(String logicalResourceName)
 			throws IOException, ClassNotFoundException {
-		String fName = logicalResourceName2FileName(logicalResourceName);
 
 		File[] data = db.listFiles();
 
 		for (int i = 0; i < data.length; i++) {
-			if (data[i].getName().equals(fName)) {
-				return loadNodeEntry(data[i]);
+			ResourceEntry e = loadNodeEntry(data[i]);
+			if (e.getLRN().equals(logicalResourceName)) {
+				return e;
 			}
 		}
+
+		List<ResourceEntry> all = loadAllEntries();
+		for (ResourceEntry e : all) {
+			if (e.getLRN().equals(logicalResourceName)) {
+				return e;
+			}
+		}
+
 		return null;
 	}
 
@@ -102,46 +103,144 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 	}
 
 	@Override
-	public Boolean resourceEntryExists(IResourceEntry entry) {
-		String fName = logicalResourceName2FileName(entry.getLRN());
-
+	public Boolean resourceEntryExists(IResourceEntry entry)
+			throws IOException, ClassNotFoundException {
 		File[] data = db.listFiles();
-
 		for (int i = 0; i < data.length; i++) {
-			if (data[i].getName().equals(fName)) {
+			IResourceEntry loadedEntry = loadNodeEntry(data[i]);
+			if (compareEntries(entry, loadedEntry)) {
 				return true;
 			}
+		}
+
+		List<ResourceEntry> allEntries = loadAllEntries();
+		for (ResourceEntry e : allEntries) {
+			if (compareEntries(e, entry)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public List<ResourceEntry> loadAllEntries() throws IOException,
+			ClassNotFoundException {
+		List<ResourceEntry> entries = null;
+		List<ResourceEntry> allEntries = new ArrayList<ResourceEntry>();
+		File[] data = db.listFiles();
+		for (int i = 0; i < data.length; i++) {
+			ResourceEntry loadedEntry = loadNodeEntry(data[i]);
+			allEntries.addAll(addEntries(loadedEntry, entries));
+		}
+
+		// for(ResourceEntry e : allEntries){
+		// debug("All ent: "+e.getLRN()+" "+e.getUID());
+		// }
+
+		return allEntries;
+	}
+
+	private List<ResourceEntry> addEntries(ResourceEntry loadedEntry,
+			List<ResourceEntry> entries) {
+		if (entries == null) {
+			entries = new ArrayList<ResourceEntry>();
+		}
+		if (!entries.contains(loadedEntry)) {
+			entries.add(loadedEntry);
+		}
+
+		if (loadedEntry instanceof ResourceFolderEntry) {
+			if (((ResourceFolderEntry) loadedEntry).hasChildren()) {
+				List<ResourceEntry> ch = ((ResourceFolderEntry) loadedEntry)
+						.getChildren();
+				for (ResourceEntry e : ch) {
+					addEntries(e, entries);
+				}
+			}
+		}
+		return entries;
+	}
+
+	public static Boolean compareEntries(IResourceEntry entry,
+			IResourceEntry loadedEntry) {
+		if (entry.getLRN().equals(loadedEntry.getLRN())
+				&& entry.getUID().equals(loadedEntry.getUID())) {
+			return true;
 		}
 		return false;
 	}
 
-	@Override
-	public ArrayList<IResourceEntry> getTopLevelResourceEntries()
-			throws IOException, ClassNotFoundException {
-
-		File[] data = db.listFiles();
-		IResourceEntry entry;
-		ArrayList<IResourceEntry> topLevelEntries = new ArrayList<IResourceEntry>();
-		for (int i = 0; i < data.length; i++) {
-			entry = loadNodeEntry(data[i]);
-			String[] parts = entry.getLRN().split(File.separator);
-			if (parts.length == 1) {
-				topLevelEntries.add(entry);
-			}
-		}
-
-		return topLevelEntries;
-	}
-
-	private IResourceEntry loadNodeEntry(String fName) throws IOException,
+	private ResourceEntry loadNodeEntry(String fName) throws IOException,
 			ClassNotFoundException {
 		FileInputStream fis = new FileInputStream(fName);
 		ObjectInputStream in = new ObjectInputStream(fis);
-		return (IResourceEntry) in.readObject();
+		return (ResourceEntry) in.readObject();
 	}
 
-	private IResourceEntry loadNodeEntry(File file) throws IOException,
+	private ResourceEntry loadNodeEntry(File file) throws IOException,
 			ClassNotFoundException {
 		return loadNodeEntry(file.getAbsolutePath());
+	}
+
+	public void registerResourceEntrys(List<ResourceEntry> topEntries)
+			throws URISyntaxException, IOException {
+		for (ResourceEntry e : topEntries) {
+			this.registerResourceEntry(e);
+		}
+
+	}
+
+	@Override
+	public ResourceFolderEntry getRoot() throws IOException,
+			ClassNotFoundException {
+		ResourceFolderEntry root = new ResourceFolderEntry("/");
+		if (!resourceEntryExists(root)) {
+			ArrayList<ResourceEntry> topLevelEntries = getTopLevelResourceEntries();
+			for (IResourceEntry e : topLevelEntries) {
+				if (compareEntries(e, root)) {
+					topLevelEntries.remove(e);
+				}
+			}
+			root.addChildren(topLevelEntries);
+
+		}
+		return root;
+	}
+
+	public ArrayList<ResourceEntry> getTopLevelResourceEntries()
+			throws IOException, ClassNotFoundException {
+
+		File[] data = db.listFiles();
+		ResourceEntry entry;
+		ArrayList<ResourceEntry> topLevelEntries = new ArrayList<ResourceEntry>();
+		for (int i = 0; i < data.length; i++) {
+			entry = loadNodeEntry(data[i]);
+			String[] parts = entry.getLRN().split("/");
+			if (parts.length == 2) {
+				topLevelEntries.add(entry);
+			}
+		}
+		return topLevelEntries;
+	}
+
+	@Override
+	public IResourceEntry getResourceEntryByUID(String UID) throws Exception {
+		File[] data = db.listFiles();
+
+		for (int i = 0; i < data.length; i++) {
+			ResourceEntry e = loadNodeEntry(data[i]);
+			if (e.getUID().equals(UID)) {
+				return e;
+			}
+		}
+
+		List<ResourceEntry> all = loadAllEntries();
+		for (ResourceEntry e : all) {
+			if (e.getUID().equals(UID)) {
+				return e;
+			}
+		}
+		
+		return null;
 	}
 }
