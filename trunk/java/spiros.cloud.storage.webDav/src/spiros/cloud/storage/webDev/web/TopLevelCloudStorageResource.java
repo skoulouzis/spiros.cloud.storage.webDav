@@ -16,8 +16,7 @@ public class TopLevelCloudStorageResource implements PropFindableResource,
 
 	private final CloudResourceFactory resourceFactory;
 
-	public TopLevelCloudStorageResource(
-			CloudResourceFactory resourceFactory) {
+	public TopLevelCloudStorageResource(CloudResourceFactory resourceFactory) {
 		this.resourceFactory = resourceFactory;
 	}
 
@@ -74,7 +73,8 @@ public class TopLevelCloudStorageResource implements PropFindableResource,
 	@Override
 	public List<? extends Resource> getChildren() {
 		try {
-			List<? extends Resource> nodes = resourceFactory.listRootResources();
+			List<? extends Resource> nodes = resourceFactory
+					.listRootResources();
 			return nodes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

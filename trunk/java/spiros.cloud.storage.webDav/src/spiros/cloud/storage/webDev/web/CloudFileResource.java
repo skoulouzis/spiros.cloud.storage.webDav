@@ -8,24 +8,26 @@ import java.util.Map;
 import spiros.cloud.storage.SimpleVRCatalogue;
 import spiros.cloud.storage.resources.IResourceEntry;
 
+import com.bradmcevoy.common.ContentTypeUtils;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
-import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 
-public class CloudFileResource implements PropFindableResource, com.bradmcevoy.http.FileResource {
-	
+public class CloudFileResource implements PropFindableResource,
+		com.bradmcevoy.http.FileResource {
+
 	private IResourceEntry resourceEntry;
 	private SimpleVRCatalogue catalogue;
 
-	public CloudFileResource(SimpleVRCatalogue catalogue, IResourceEntry resourceEntry) {
+	public CloudFileResource(SimpleVRCatalogue catalogue,
+			IResourceEntry resourceEntry) {
 		this.resourceEntry = resourceEntry;
 		this.catalogue = catalogue;
 	}
@@ -69,7 +71,9 @@ public class CloudFileResource implements PropFindableResource, com.bradmcevoy.h
 
 	@Override
 	public void copyTo(CollectionResource collectionResource, String name) {
-		throw new RuntimeException("Not Implemented yet. Args: CollectionResource: "+collectionResource+", name: "+name);
+		throw new RuntimeException(
+				"Not Implemented yet. Args: CollectionResource: "
+						+ collectionResource + ", name: " + name);
 	}
 
 	@Override
@@ -84,12 +88,21 @@ public class CloudFileResource implements PropFindableResource, com.bradmcevoy.h
 
 	@Override
 	public String getContentType(String accepts) {
-		throw new RuntimeException("Not Implemented yet: Args: accepts: "+accepts);
+		String mime = this.resourceEntry.getMetadata().getMimeType();
+		String type = mime;
+		if (accepts != null && !accepts.equals("")) {
+			type = ContentTypeUtils.findAcceptableContentType(mime, accepts);
+		}
+		return type;
+	}
+
+	private void debug(String msg) {
+		System.err.println(this.getClass().getSimpleName() + ": " + msg);
 	}
 
 	@Override
 	public Long getMaxAgeSeconds(Auth auth) {
-		throw new RuntimeException("Not Implemented yet: Args: auth: "+auth);
+		throw new RuntimeException("Not Implemented yet: Args: auth: " + auth);
 	}
 
 	@Override
@@ -100,9 +113,11 @@ public class CloudFileResource implements PropFindableResource, com.bradmcevoy.h
 	}
 
 	@Override
-	public void moveTo(CollectionResource arg0, String arg1)
+	public void moveTo(CollectionResource rDest, String name)
 			throws ConflictException {
-		throw new RuntimeException("Not Implemented yet");
+		// catalogue.renameEntry();
+		throw new RuntimeException("Not Implemented yet. Args, DestName: "
+				+ rDest.getName() + " fileName?:" + name);
 	}
 
 	@Override
@@ -116,5 +131,5 @@ public class CloudFileResource implements PropFindableResource, com.bradmcevoy.h
 	public Date getCreateDate() {
 		return new Date(this.resourceEntry.getMetadata().getCreateDate());
 	}
-	
+
 }

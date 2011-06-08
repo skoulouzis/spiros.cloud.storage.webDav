@@ -1,7 +1,6 @@
 package spiros.cloud.storage.resources;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class Metadata implements Serializable {
 
@@ -12,6 +11,7 @@ public class Metadata implements Serializable {
 	private Long createDate = null;
 	private Long modifiedDate;
 	private Long length;
+	private String mimeType;
 
 	public Long getCreateDate() {
 		return this.createDate;
@@ -35,6 +35,14 @@ public class Metadata implements Serializable {
 
 	public void setLength(Long length) {
 		this.length = length;
+	}
+
+	public String getMimeType() {
+		return this.mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
 	}
 
 }

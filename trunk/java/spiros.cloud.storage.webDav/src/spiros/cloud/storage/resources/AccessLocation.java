@@ -2,7 +2,7 @@ package spiros.cloud.storage.resources;
 
 import java.io.Serializable;
 
-public class AccessLocation implements Serializable{
+public class AccessLocation implements Serializable {
 
 	/**
 	 * 
