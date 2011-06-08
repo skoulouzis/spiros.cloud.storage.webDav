@@ -82,7 +82,7 @@ public class CloudDirResource implements PropFindableResource,
 
 	@Override
 	public Resource child(String name) {
-		return new CloudResource(catalogue, entry.getChild(name));
+		return new CloudResource(catalogue, entry.getChildByLRN(name));
 	}
 
 	@Override

@@ -43,8 +43,6 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 	@Override
 	public void registerResourceEntry(IResourceEntry entry)
 			throws URISyntaxException, IOException {
-		if (entry instanceof ResourceFolderEntry) {
-		}
 		saveEntry(entry);
 	}
 

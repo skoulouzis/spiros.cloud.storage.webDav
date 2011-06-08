@@ -67,26 +67,31 @@ public class ResourceEntry implements IResourceEntry, Serializable {
 	}
 
 	protected void setLRN(String newLRN) {
-		String formated = null;
-		String tmp = newLRN;
-		if (newLRN.equals("/")) {
+		if (!newLRN.contains("/")) {
 			this.lrn = newLRN;
 		} else {
-			if (newLRN.endsWith("/")) {
-				tmp = removeLastChar(newLRN);
-			}
-			try {
-				URI uri = new URI("file://" + tmp);
-				formated = uri.getPath();
-				tmp = formated.replaceAll("//", "/");
-				formated = tmp;
+			String formated = null;
+			String tmp = newLRN;
+			if (newLRN.equals("/")) {
+				this.lrn = newLRN;
+			} else {
+				if (newLRN.endsWith("/")) {
+					tmp = removeLastChar(newLRN);
+				}
+				try {
+					URI uri = new URI("file://" + tmp);
+					formated = uri.getPath();
+					tmp = formated.replaceAll("//", "/");
+					formated = tmp;
 
-				// debug("Formated: "+formated);
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					// debug("Formated: "+formated);
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				this.lrn = formated;
 			}
-			this.lrn = formated;
+
 		}
 	}
 }
