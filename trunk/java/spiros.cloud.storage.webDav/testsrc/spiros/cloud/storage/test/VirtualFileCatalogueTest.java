@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import gov.lbl.srm.v22.stubs.TDirOption;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -30,6 +32,7 @@ import org.junit.Test;
 
 import spiros.cloud.storage.SimpleVRCatalogue;
 import spiros.cloud.storage.resources.IResourceEntry;
+import spiros.cloud.storage.resources.Metadata;
 import spiros.cloud.storage.resources.ResourceEntry;
 import spiros.cloud.storage.resources.ResourceFolderEntry;
 
@@ -38,8 +41,6 @@ import spiros.cloud.storage.resources.ResourceFolderEntry;
  * @author S. Koulouzis
  */
 public class VirtualFileCatalogueTest extends spiros.cloud.storage.test.Test {
-
-	private static int fileCount;
 
 	public VirtualFileCatalogueTest() throws Exception {
 		super();
@@ -70,7 +71,7 @@ public class VirtualFileCatalogueTest extends spiros.cloud.storage.test.Test {
 						+ entry.getUID());
 			}
 		}
-		
+
 		boolean duplicates = hasDuplicates(getAllEntries());
 		assertFalse(duplicates);
 	}
@@ -80,13 +81,13 @@ public class VirtualFileCatalogueTest extends spiros.cloud.storage.test.Test {
 			ClassNotFoundException {
 		SimpleVRCatalogue instance = new SimpleVRCatalogue();
 		List<ResourceEntry> loadedAll = instance.loadAllEntries();
-		
+
 		boolean duplicates = hasDuplicates(loadedAll);
 		assertFalse(duplicates);
 
-		boolean matsch = compareResourceEntryList(getAllEntries(),loadedAll);
+		boolean matsch = compareResourceEntryList(getAllEntries(), loadedAll);
 		assertTrue(matsch);
-		
+
 	}
 
 	@Test
@@ -106,37 +107,68 @@ public class VirtualFileCatalogueTest extends spiros.cloud.storage.test.Test {
 
 		boolean match = compareResourceEntryList(rootCh, getTopEntries());
 		assertTrue(match);
-		
-		 match = compareResourceEntryList(instance.getTopLevelResourceEntries(), getTopEntries());
-		 assertTrue(match);
+
+		match = compareResourceEntryList(instance.getTopLevelResourceEntries(),
+				getTopEntries());
+		assertTrue(match);
 
 	}
-	
+
 	@Test
-	public void testRegisterChild() throws Exception{
-//		SimpleVRCatalogue cat = new SimpleVRCatalogue();
-		
-//		ResourceFolderEntry theDir = (ResourceFolderEntry)cat.getResourceEntryByUID(getTestDirUID());
-//		ResourceEntry child = new ResourceEntry("child");
-//		theDir.addChild(child);
+	public void testRegisterChild() throws Exception {
+		SimpleVRCatalogue cat = new SimpleVRCatalogue();
+
+		ResourceFolderEntry theDir = (ResourceFolderEntry) cat
+				.getResourceEntryByUID(getTestDirUID());
+		ResourceEntry child = new ResourceEntry(theDir.getLRN() + "/child");
+		theDir.addChild(child);
+		IResourceEntry loadedChild = theDir.getChildByLRN(child.getLRN());
+		Boolean theSame = SimpleVRCatalogue.compareEntries(child, loadedChild);
+		assertTrue(theSame);
+
+		child = new ResourceEntry("child");
+		theDir.addChild(child);
+		loadedChild = theDir.getChildByLRN(child.getLRN());
+		theSame = SimpleVRCatalogue.compareEntries(child, loadedChild);
+		assertTrue(theSame);
+
+		boolean exceptionThrown = false;
+		try {
+			child = new ResourceEntry("/someOtherDir/child");
+			theDir.addChild(child);
+			loadedChild = theDir.getChildByLRN(child.getLRN());
+			theSame = SimpleVRCatalogue.compareEntries(child, loadedChild);
+			assertTrue(theSame);
+		} catch (Exception e) {
+			exceptionThrown = true;
+		}
+		assertTrue(exceptionThrown);
 	}
-	
+
 	@Test
-	public void testCreateAndDeleteFile() throws Exception{
-//		SimpleVRCatalogue cat = new SimpleVRCatalogue();
-//		
-//		ResourceFolderEntry theDir = (ResourceFolderEntry) cat.getResourceEntryByUID(getTestDirUID());
-//		ResourceEntry child = new ResourceEntry("child");
-//		theDir.addChild(child);
-//		
-//		cat.registerResourceEntry(theDir);
-		
-//        VFile newFile = getRemoteTestDir().createFile(nextFilename("testFile"));
-//        // sftp created 1 byte length new files !
-//        Assert.assertNotNull("New created file may not be NULL", newFile);
-//        Assert.assertTrue("Length of newly created file must be 0!:" + getRemoteTestDir(), newFile.getLength() == 0);
-//        newFile.delete();
-		
+	public void testRegisterResource() throws URISyntaxException, IOException {
+		SimpleVRCatalogue cat = new SimpleVRCatalogue();
+		String lrn = "aDir";
+		ResourceFolderEntry newDir = new ResourceFolderEntry(lrn);
+		assertEquals(lrn, newDir.getLRN());
+//		cat.registerResourceEntry(newDir);
+	}
+
+	@Test
+	public void testFolderMetadata() throws Exception {
+		SimpleVRCatalogue cat = new SimpleVRCatalogue();
+
+		ResourceFolderEntry newDir = new ResourceFolderEntry("aDir");
+		cat.registerResourceEntry(newDir);
+
+		IResourceEntry loadedNewDir = cat
+				.getResourceEntryByUID(newDir.getUID());
+		Metadata meta = loadedNewDir.getMetadata();
+		assertNotNull(meta);
+
+		Long create = meta.getCreateDate();
+
+		assertNotNull(create);
 	}
 
 	private void debug(String msg) {
