@@ -4,12 +4,14 @@
  */
 package spiros.cloud.storage.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 import nl.uva.vlet.exception.VlException;
 
@@ -19,13 +21,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
-
 import spiros.cloud.storage.Config;
 import spiros.cloud.storage.Util;
-import spiros.cloud.storage.resources.IResourceEntry;
-
-import static org.junit.Assert.*;
 
 /**
  * 
