@@ -17,8 +17,8 @@ public class CloudResource implements PropFindableResource, Resource {
 	private SimpleVRCatalogue catalogue;
 
 	public CloudResource(SimpleVRCatalogue catalogue, IResourceEntry entry) {
-		this.nodeEntry = entry;
-		this.catalogue = catalogue;
+		this.setNodeEntry(entry);
+		this.setCatalogue(catalogue);
 	}
 
 	@Override
@@ -38,13 +38,15 @@ public class CloudResource implements PropFindableResource, Resource {
 
 	@Override
 	public Date getModifiedDate() {
-		// TODO Auto-generated method stub
-		return null;
+		if(getNodeEntry().getMetadata()==null){
+			return null;
+		}
+		return new Date(getNodeEntry().getMetadata().getModifiedDate());
 	}
 
 	@Override
 	public String getName() {
-		return nodeEntry.getLRN();
+		return getNodeEntry().getLRN();
 	}
 
 	@Override
@@ -54,16 +56,35 @@ public class CloudResource implements PropFindableResource, Resource {
 
 	@Override
 	public String getUniqueId() {
-		return "" + nodeEntry.hashCode();
+		return "" + getNodeEntry().getUID();
 	}
 
 	@Override
 	public Date getCreateDate() {
-		return new Date(nodeEntry.getMetadata().getCreateDate());
+		if(getNodeEntry().getMetadata()==null){
+			return null;
+		}
+		return new Date(getNodeEntry().getMetadata().getCreateDate());
 	}
 
 	private void debug(String msg) {
 		System.err.println(this.getClass().getSimpleName() + ": " + msg);
+	}
+
+	protected void setNodeEntry(IResourceEntry nodeEntry) {
+		this.nodeEntry = nodeEntry;
+	}
+
+	protected IResourceEntry getNodeEntry() {
+		return nodeEntry;
+	}
+
+	protected void setCatalogue(SimpleVRCatalogue catalogue) {
+		this.catalogue = catalogue;
+	}
+
+	protected SimpleVRCatalogue getCatalogue() {
+		return catalogue;
 	}
 
 }

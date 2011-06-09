@@ -20,53 +20,12 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 
-public class CloudFileResource implements PropFindableResource,
+public class CloudFileResource extends CloudResource implements
 		com.bradmcevoy.http.FileResource {
 
-	private IResourceEntry resourceEntry;
-	private SimpleVRCatalogue catalogue;
-
-	public CloudFileResource(SimpleVRCatalogue catalogue,
-			IResourceEntry resourceEntry) {
-		this.resourceEntry = resourceEntry;
-		this.catalogue = catalogue;
-	}
-
-	@Override
-	public Object authenticate(String user, String arg1) {
-		return user;
-	}
-
-	@Override
-	public boolean authorise(Request arg0, Method arg1, Auth arg2) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public String checkRedirect(Request arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Date getModifiedDate() {
-		return new Date(resourceEntry.getMetadata().getModifiedDate());
-	}
-
-	@Override
-	public String getName() {
-		return resourceEntry.getLRN();
-	}
-
-	@Override
-	public String getRealm() {
-		return "Realm";
-	}
-
-	@Override
-	public String getUniqueId() {
-		return resourceEntry.getUID();
+	public CloudFileResource(SimpleVRCatalogue catalogue, IResourceEntry entry) {
+		super(catalogue, entry);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -83,12 +42,12 @@ public class CloudFileResource implements PropFindableResource,
 
 	@Override
 	public Long getContentLength() {
-		return resourceEntry.getMetadata().getLength();
+		return  getNodeEntry().getMetadata().getLength();
 	}
 
 	@Override
 	public String getContentType(String accepts) {
-		String mime = this.resourceEntry.getMetadata().getMimeType();
+		String mime = getNodeEntry().getMetadata().getMimeType();
 		String type = mime;
 		if (accepts != null && !accepts.equals("")) {
 			type = ContentTypeUtils.findAcceptableContentType(mime, accepts);
@@ -125,11 +84,6 @@ public class CloudFileResource implements PropFindableResource,
 			Map<String, FileItem> arg1) throws BadRequestException,
 			NotAuthorizedException {
 		throw new RuntimeException("Not Implemented yet");
-	}
-
-	@Override
-	public Date getCreateDate() {
-		return new Date(this.resourceEntry.getMetadata().getCreateDate());
 	}
 
 }

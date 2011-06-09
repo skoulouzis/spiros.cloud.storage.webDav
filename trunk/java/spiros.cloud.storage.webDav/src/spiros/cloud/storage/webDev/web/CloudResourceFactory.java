@@ -1,15 +1,17 @@
 package spiros.cloud.storage.webDev.web;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import nl.uva.vlet.exception.VlException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import spiros.cloud.storage.SimpleVRCatalogue;
+import spiros.cloud.storage.Util;
 import spiros.cloud.storage.resources.IResourceEntry;
 import spiros.cloud.storage.resources.ResourceEntry;
 import spiros.cloud.storage.resources.ResourceFileEntry;
@@ -27,9 +29,9 @@ public class CloudResourceFactory implements ResourceFactory {
 
 	private SimpleVRCatalogue catalogue;
 
-	public CloudResourceFactory() throws MalformedURLException,
-			URISyntaxException {
+	public CloudResourceFactory() throws URISyntaxException, VlException, IOException {
 		catalogue = new SimpleVRCatalogue();
+//		Util.initTestCatalouge();
 	}
 
 	@Override
@@ -61,14 +63,15 @@ public class CloudResourceFactory implements ResourceFactory {
 
 	private Resource getResource(Path path) throws IOException,
 			ClassNotFoundException {
-
-		IResourceEntry entry = catalogue.getResourceEntryByLRN(path.toString());
-		// if(entry.isCollection()){
-		//
-		// }else{
-		//
-		// }
-
+		
+		ResourceEntry entry = (ResourceEntry) catalogue.getResourceEntryByLRN(path.toString());
+		if(entry instanceof ResourceFolderEntry){
+			List<ResourceEntry> children = ((ResourceFolderEntry)entry).getChildren();
+			for(ResourceEntry e: children){
+				log.debug("Children: "+e.getLRN());
+			}
+		}
+		
 		return new CloudResource(catalogue, entry);
 	}
 

@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.swing.internal.plaf.metal.resources.metal;
+
 import nl.uva.vlet.data.VAttribute;
 import nl.uva.vlet.exception.VlException;
 import nl.uva.vlet.exception.VlURISyntaxException;
@@ -20,13 +22,20 @@ import spiros.cloud.storage.resources.ResourceFolderEntry;
 public class Util {
 
 	private static SimpleVRCatalogue cat;
+	private static VRSClient c;
 
-	public static void initTestCatalouge() throws VlException,
-			URISyntaxException, IOException {
-		VRSClient c = new VRSClient();
+	public void setVRSClient(VRSClient client) {
+		c = client;
+	}
+
+	public static void initTestCatalouge() throws Exception {
+		if (c == null) {
+			c = new VRSClient();
+		}
 
 		for (int i = 0; i < Config.CLOUD_LOCATIONS_URI.length; i++) {
 			VNode vnode = c.openLocation(Config.CLOUD_LOCATIONS_URI[i]);
+
 			for (VNode n : ((VComposite) vnode).getNodes()) {
 				addAllNodes2DB(Config.CLOUD_LOCATIONS_URI[i], n);
 			}
@@ -34,39 +43,83 @@ public class Util {
 	}
 
 	private static void addAllNodes2DB(String cloudLocationsUri, VNode vnode)
-			throws VlException, URISyntaxException, IOException {
+			throws Exception {
 		String lrn = getLogicalName(cloudLocationsUri, vnode.getVRL()
 				.toURIString());
-		ResourceEntry entry;
+		
+		
+		ResourceEntry entry = null;
 		if (!vnode.getName().startsWith(".")) {
 			if (vnode.isComposite()) {
+				debug("Composite "+lrn);
 				entry = new ResourceFolderEntry(lrn);
-
-				VNode[] nodes = ((VComposite) vnode).getNodes();
-
-				List<ResourceEntry> ch = nodes2Entries(cloudLocationsUri, nodes);
-				((ResourceFolderEntry) entry).addChildren(ch);
-
-				for (VNode n : nodes) {
+				VNode[] nodes = ((VComposite)vnode).getNodes();
+				
+				List<ResourceEntry> children = nodes2Entries(cloudLocationsUri, nodes);
+				
+				((ResourceFolderEntry)entry).addChildren(children);
+				
+				for(VNode n : nodes){
+					String childLRN = getLogicalName(cloudLocationsUri, n.getVRL()
+							.toURIString());
+					debug("\t Children: "+childLRN);
 					addAllNodes2DB(cloudLocationsUri, n);
 				}
 			} else {
+				debug("Files "+lrn);
 				entry = new ResourceFileEntry(lrn);
-				List<AccessLocation> accessLocations = getAccessLocation(vnode);
-				((ResourceFileEntry) entry).addAccessLocations(accessLocations);
+				List<AccessLocation> access = getAccessLocation(vnode);
+				((ResourceFileEntry)entry).addAccessLocations(access);
 			}
-
-			if (cat == null) {
-				cat = new SimpleVRCatalogue();
-			}
-			// debug("Register: "+entry.getLRN());
-
-			Metadata metadata = getNodeMetadata(vnode);
-			entry.setMetadata(metadata);
+			Metadata meta = getNodeMetadata(vnode);
+			entry.setMetadata(meta);
+		}
+		
+		if(cat == null){
+			cat = new SimpleVRCatalogue();
+		}
+		if(entry != null){
 			cat.registerResourceEntry(entry);
 		}
-
 	}
+
+	// private static void addAllNodes2DB(String cloudLocationsUri, VNode vnode)
+	// throws VlException, URISyntaxException, IOException {
+	// String lrn = getLogicalName(cloudLocationsUri, vnode.getVRL()
+	// .toURIString());
+	//
+	// ResourceEntry entry;
+	// if (!vnode.getName().startsWith(".")) {
+	// if (vnode.isComposite()) {
+	// entry = new ResourceFolderEntry(lrn);
+	//
+	// VNode[] nodes = ((VComposite) vnode).getNodes();
+	//
+	// List<ResourceEntry> ch = nodes2Entries(cloudLocationsUri, nodes);
+	// ((ResourceFolderEntry) entry).addChildren(ch);
+	//
+	// debug("Addig children to "+entry.getLRN());
+	//
+	// for (VNode n : nodes) {
+	// addAllNodes2DB(cloudLocationsUri, n);
+	// }
+	// } else {
+	// entry = new ResourceFileEntry(lrn);
+	// List<AccessLocation> accessLocations = getAccessLocation(vnode);
+	// ((ResourceFileEntry) entry).addAccessLocations(accessLocations);
+	// }
+	//
+	// if (cat == null) {
+	// cat = new SimpleVRCatalogue();
+	// }
+	// debug("Register: "+entry.getLRN());
+	//
+	// Metadata metadata = getNodeMetadata(vnode);
+	// entry.setMetadata(metadata);
+	// cat.registerResourceEntry(entry);
+	// }
+	//
+	// }
 
 	private static Metadata getNodeMetadata(VNode vnode) throws VlException {
 		Metadata m = new Metadata();
@@ -78,7 +131,7 @@ public class Util {
 		VAttribute createDate = null;
 		VAttribute mimeType = null;
 		for (String name : aNames) {
-			debug("names: " + name);
+			// debug("names: " + name);
 			if (name.toLowerCase().contains("create")
 					&& name.toLowerCase().contains("time")) {
 				createDate = vnode.getAttribute(name);
@@ -126,7 +179,10 @@ public class Util {
 			if (n.isComposite()) {
 				entries.add(new ResourceFolderEntry(lrn));
 			} else {
-				entries.add(new ResourceFileEntry(lrn));
+				ResourceFileEntry ch = new ResourceFileEntry(lrn);
+				List<AccessLocation> access = getAccessLocation(n);
+				ch.addAccessLocations(access);
+				entries.add(ch);
 			}
 		}
 		return entries;
@@ -138,12 +194,12 @@ public class Util {
 
 	public static String getLogicalName(String basePath, String absoluteNodePath) {
 		if (absoluteNodePath.startsWith(basePath)) {
-			return absoluteNodePath.substring(basePath.length() + 1);
+			return absoluteNodePath.substring(basePath.length());
 		} else {
 			String[] parts = basePath.split("/");
 			String last = parts[parts.length - 1];
 			int index = absoluteNodePath.lastIndexOf(last);
-			return absoluteNodePath.substring(index + last.length() + 1);
+			return absoluteNodePath.substring(index + last.length());
 		}
 	}
 }

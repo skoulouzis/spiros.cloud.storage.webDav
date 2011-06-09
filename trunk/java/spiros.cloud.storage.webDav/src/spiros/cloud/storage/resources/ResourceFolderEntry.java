@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import spiros.cloud.storage.SimpleVRCatalogue;
+
 public class ResourceFolderEntry extends ResourceEntry {
 
 	/**
@@ -20,11 +22,22 @@ public class ResourceFolderEntry extends ResourceEntry {
 		return this.children;
 	}
 
-	public void addChildren(List<ResourceEntry> children) {
+	public void addChildren(List<ResourceEntry> children) throws Exception {
 		if (this.children == null) {
 			this.children = new ArrayList<ResourceEntry>();
 		}
-		this.children.addAll(children);
+		for (ResourceEntry e : children) {
+			addChild(e);
+		}
+	}
+
+	public void addChild(ResourceEntry child) throws Exception {
+		if (this.children == null) {
+			this.children = new ArrayList<ResourceEntry>();
+		}
+		String resolvedLRN = resolveChildName(child.getLRN());
+		child.setLRN(resolvedLRN);
+		this.children.add(child);
 	}
 
 	public void removeChildren(List<IResourceEntry> children) {
@@ -39,13 +52,15 @@ public class ResourceFolderEntry extends ResourceEntry {
 		}
 	}
 
-	public void addChild(ResourceEntry child) throws Exception {
-		if (this.children == null) {
-			this.children = new ArrayList<ResourceEntry>();
+	public boolean childExists(ResourceEntry child) {
+		if (children != null && children.isEmpty()) {
+			for (ResourceEntry e : children) {
+				if (SimpleVRCatalogue.compareEntries(e, child)) {
+					return true;
+				}
+			}
 		}
-		String resolvedLRN = resolveChildName(child.getLRN());
-		child.setLRN(resolvedLRN);
-		this.children.add(child);
+		return false;
 	}
 
 	private String resolveChildName(String lrn) throws Exception {
@@ -56,16 +71,20 @@ public class ResourceFolderEntry extends ResourceEntry {
 			String[] parts = lrn.split("/");
 			if (parts != null && parts.length >= 1) {
 				theChildName = parts[parts.length - 1];
-				int beginIndex = 0;
-				int endIndex = (lrn.length() - theChildName.length()) - 1;
-				parentLRN = lrn.substring(beginIndex, endIndex);
-				if (parentLRN.endsWith("/")) {
+				
+				int endIndex = (lrn.length() - theChildName.length());
+				parentLRN = lrn.substring(0, endIndex-1);
+				if(parentLRN.equals("")){
+					parentLRN = "/";
+				}
+				
+				if (parentLRN.endsWith("/") && parentLRN.length()>1) {
 					parentLRN = parentLRN.substring(parentLRN.length() - 2,
 							parentLRN.length() - 1);
 				}
 				if (!parentLRN.equals(this.getLRN())) {
 					throw new Exception(
-							"Child path is wrong. Added child's parent is: "
+							"Child path "+lrn+" is wrong. Added child's parent is: "
 									+ parentLRN + " while parent should be: "
 									+ getLRN());
 				}
@@ -78,6 +97,15 @@ public class ResourceFolderEntry extends ResourceEntry {
 	public IResourceEntry getChildByLRN(String name) {
 		for (IResourceEntry r : children) {
 			if (r.getLRN().equals(name)) {
+				return r;
+			}
+		}
+		return null;
+	}
+
+	public IResourceEntry getChildByUID(String uid1) {
+		for (IResourceEntry r : children) {
+			if (r.getUID().equals(uid1)) {
 				return r;
 			}
 		}

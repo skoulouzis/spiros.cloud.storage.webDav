@@ -10,4 +10,6 @@ public interface IResourceEntry {
 	public void setMetadata(Metadata metadata);
 
 	public String getUID();
+
+	public void setLRN(String string);
 }

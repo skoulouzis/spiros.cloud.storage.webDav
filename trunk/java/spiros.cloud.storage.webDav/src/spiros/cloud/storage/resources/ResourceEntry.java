@@ -62,11 +62,11 @@ public class ResourceEntry implements IResourceEntry, Serializable {
 		return this.UID;
 	}
 
-	private void debug(String msg) {
+	protected void debug(String msg) {
 		System.err.println(this.getClass().getSimpleName() + ": " + msg);
 	}
 
-	protected void setLRN(String newLRN) {
+	public void setLRN(String newLRN) {
 		if (!newLRN.contains("/")) {
 			this.lrn = newLRN;
 		} else {

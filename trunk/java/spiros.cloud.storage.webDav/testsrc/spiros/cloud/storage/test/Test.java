@@ -2,8 +2,6 @@ package spiros.cloud.storage.test;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
