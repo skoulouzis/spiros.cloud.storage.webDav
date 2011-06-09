@@ -75,7 +75,7 @@ public class UtilTest {
 	public void testGetLogicalName() throws URISyntaxException {
 		File f = new File(new URI(Config.CLOUD_LOC1_URI));
 		String[] fNames = new String[] { "newFile1", ".dotName" };
-		String dirName = "L1Dir";
+		String dirName = "/L1Dir";
 
 		for (int i = 0; i < fNames.length; i++) {
 			File aFile = new File(f.getAbsolutePath() + File.separator
@@ -108,14 +108,10 @@ public class UtilTest {
 
 	/**
 	 * Test of initTestCatalouge method, of class Util.
-	 * 
-	 * @throws VlException
-	 * @throws URISyntaxException
-	 * @throws IOException
+	 * @throws Exception 
 	 */
 	@Test
-	public void testInitTestCatalouge() throws VlException, URISyntaxException,
-			IOException {
+	public void testInitTestCatalouge() throws Exception {
 		System.out.println("initTestCatalouge");
 
 		deleteAllDBFiles();

@@ -1,7 +1,10 @@
 package spiros.cloud.storage.webDev.web;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+
+import nl.uva.vlet.exception.VlException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,12 @@ public class CloudResourceFactoryFactory implements ResourceFactoryFactory {
 			}
 			// checkInitialData();
 			catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (VlException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

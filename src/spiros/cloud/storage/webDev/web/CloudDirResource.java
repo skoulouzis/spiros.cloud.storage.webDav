@@ -24,54 +24,12 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 
-public class CloudDirResource implements PropFindableResource,
-		com.bradmcevoy.http.FolderResource {
+public class CloudDirResource extends CloudResource implements
+		com.bradmcevoy.http.FolderResource {	
 
-	private SimpleVRCatalogue catalogue;
-	private ResourceFolderEntry entry;
-
-	public CloudDirResource(SimpleVRCatalogue catalogue,
-			IResourceEntry resourceEntry) {
-		this.catalogue = catalogue;
-		this.entry = (ResourceFolderEntry) resourceEntry;
-	}
-
-	@Override
-	public Object authenticate(String user, String arg1) {
-		// TODO Auto-generated method stub
-		return user;
-	}
-
-	@Override
-	public boolean authorise(Request arg0, Method arg1, Auth arg2) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public String checkRedirect(Request arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Date getModifiedDate() {
-		return new Date(entry.getMetadata().getModifiedDate());
-	}
-
-	@Override
-	public String getName() {
-		return entry.getLRN();
-	}
-
-	@Override
-	public String getRealm() {
-		return "realm";
-	}
-
-	@Override
-	public String getUniqueId() {
-		return entry.getUID();
+	public CloudDirResource(SimpleVRCatalogue catalogue, IResourceEntry entry) {
+		super(catalogue, entry);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -82,15 +40,15 @@ public class CloudDirResource implements PropFindableResource,
 
 	@Override
 	public Resource child(String name) {
-		return new CloudResource(catalogue, entry.getChildByLRN(name));
+		return new CloudResource(getCatalogue(),  ((ResourceFolderEntry) getNodeEntry()).getChildByLRN(name));
 	}
 
 	@Override
 	public List<? extends Resource> getChildren() {
-		List<ResourceEntry> children = entry.getChildren();
+		List<ResourceEntry> children =  ((ResourceFolderEntry) getNodeEntry()).getChildren();
 		List<Resource> list = new ArrayList<Resource>();
 		for (IResourceEntry r : children) {
-			list.add(new CloudResource(catalogue, r));
+			list.add(new CloudResource(getCatalogue(), r));
 		}
 		return list;
 	}
@@ -113,7 +71,10 @@ public class CloudDirResource implements PropFindableResource,
 
 	@Override
 	public Long getContentLength() {
-		return entry.getMetadata().getLength();
+		if ( getNodeEntry().getMetadata() == null) {
+			return null;
+		}
+		return  getNodeEntry().getMetadata().getLength();
 	}
 
 	@Override
@@ -137,11 +98,6 @@ public class CloudDirResource implements PropFindableResource,
 	public void moveTo(CollectionResource arg0, String arg1)
 			throws ConflictException {
 		throw new RuntimeException("Not Implemented yet");
-	}
-
-	@Override
-	public Date getCreateDate() {
-		return new Date(entry.getMetadata().getCreateDate());
 	}
 
 }

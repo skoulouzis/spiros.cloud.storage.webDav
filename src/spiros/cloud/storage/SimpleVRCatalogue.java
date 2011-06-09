@@ -189,8 +189,7 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 	}
 
 	@Override
-	public ResourceFolderEntry getRoot() throws IOException,
-			ClassNotFoundException {
+	public ResourceFolderEntry getRoot() throws Exception {
 		ResourceFolderEntry root = new ResourceFolderEntry("/");
 		if (!resourceEntryExists(root)) {
 			ArrayList<ResourceEntry> topLevelEntries = getTopLevelResourceEntries();
@@ -199,8 +198,7 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 					topLevelEntries.remove(e);
 				}
 			}
-			root.addChildren(topLevelEntries);
-
+			root.addChildren(topLevelEntries);	
 		}
 		return root;
 	}
@@ -238,7 +236,6 @@ public class SimpleVRCatalogue implements IVRCatalogue {
 				return e;
 			}
 		}
-		
 		return null;
 	}
 }

@@ -4,14 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import spiros.cloud.storage.resources.IResourceEntry;
 import spiros.cloud.storage.resources.Metadata;
 import spiros.cloud.storage.resources.ResourceEntry;
-import spiros.cloud.storage.resources.ResourceFolderEntry;
 
 public class TestResourceEntry extends spiros.cloud.storage.test.Test {
 	private String name = "resource";
@@ -63,14 +60,13 @@ public class TestResourceEntry extends spiros.cloud.storage.test.Test {
 			assertEquals(meta2, meta1);
 		}
 		
-		ResourceEntry newDir = new ResourceEntry("aDir");
-		
-		Metadata meta = newDir.getMetadata();
-		assertNotNull(meta);
-
-		Long create = meta.getCreateDate();
-
-		assertNotNull(create);
+//		ResourceEntry newDir = new ResourceEntry("aDir");
+//		
+//		Metadata meta = newDir.getMetadata();
+//		assertNotNull(meta);
+//
+//		Long create = meta.getCreateDate();
+//		assertNotNull(create);
 	}
 
 	@Test
